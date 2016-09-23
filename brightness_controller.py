@@ -22,12 +22,11 @@ def set_brightness( brightness_value ):
   cmd = './lib/brightness -m ' + str(brightness_value)
   os.system(cmd)
 
-# clear_logger()
-# keylogger_process.kill()
-
 def get_logger_lines_count():
-  num_lines = sum(1 for line in open('keystroke.log'))
-  return num_lines
+  args = ("wc", "-l", "keystroke.log")
+  popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+  popen.wait()
+  return popen.stdout.read().split(" ")[-2]
 
 def get_logger_last_line():
   args = ("tail", "-n", "1", "keystroke.log")
