@@ -2,8 +2,13 @@ import subprocess
 import os
 import sys
 import time
-brightness_value = 0.5
+
+user_brightness_value = 0
 keylogger_process = 0
+last_key = ""
+last_key_timestamp = 0
+none_del_counter = 0
+
 
 def start_keylogger():
   args = ("./lib/keylogger")
@@ -16,7 +21,7 @@ def get_current_brightness():
   args = ("./lib/brightness", "-l")
   popen = subprocess.Popen(args, stdout=subprocess.PIPE)
   popen.wait()
-  return popen.stdout.read().rsplit(None, 1)[-1]
+  return float(popen.stdout.read().rsplit(None, 1)[-1])
 
 def set_brightness( brightness_value ):
   cmd = './lib/brightness -m ' + str(brightness_value)
@@ -34,13 +39,27 @@ def get_logger_last_line():
   popen.wait()
   return popen.stdout.read()
 
+def process_key(key, timestamp):
+  print key
+  global last_key, last_key_timestamp, none_del_counter
+  time_diff = timestamp - last_key_timestamp
+  if key == "[del]\n" and time_diff < 3 and last_key != "[del]\n":
+    current_brightness = get_current_brightness()
+    set_brightness(current_brightness*0.80)
+    none_del_counter = 0
+  elif key != "[del]\n":
+    none_del_counter += 1
+  last_key, last_key_timestamp = key, timestamp
+
+user_brightness_value = get_current_brightness()
 clear_logger()
 keylogger_process = start_keylogger()
 time.sleep(2)
 
 num_of_lines = get_logger_lines_count()
 while True:
-    current_lines = get_logger_lines_count()
-    if num_of_lines != current_lines:
-      print get_logger_last_line()
-      num_of_lines = current_lines
+  current_lines = get_logger_lines_count()
+  if num_of_lines != current_lines:
+    process_key(get_logger_last_line(), time.time())
+    num_of_lines = current_lines
+  time.sleep(0.1)
