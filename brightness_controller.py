@@ -3,10 +3,7 @@ import os
 import sys
 import time
 import signal
-
-
-
-
+from sh import tail
 user_brightness_value = 0
 keylogger_process = 0
 
@@ -27,25 +24,15 @@ def set_brightness( brightness_value ):
   cmd = './lib/brightness -m ' + str(brightness_value)
   os.system(cmd)
 
-def get_logger_lines_count():
-  args = ("wc", "-l", "keystroke.log")
-  popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-  popen.wait()
-  return popen.stdout.read().split(" ")[-2]
-
-def get_logger_last_line():
-  args = ("tail", "-n", "1", "keystroke.log")
-  popen = subprocess.Popen(args, stdout=subprocess.PIPE)
-  popen.wait()
-  return popen.stdout.read()
-
 last_key = ""
 last_key_timestamp = 0
 none_del_counter = 0
-brightness_step_size = 0.05
+brightness_step_size = 0.05 if len(sys.argv) <= 1 else (float(sys.argv[1])*5)/100
+
+print "step " + str(brightness_step_size)
 
 def process_key(key, timestamp):
-  print key
+  # print key
   global last_key, last_key_timestamp, none_del_counter, brightness_step_size, user_brightness_value
   time_diff = timestamp - last_key_timestamp
   current_brightness = get_current_brightness()
@@ -68,17 +55,14 @@ time.sleep(2)
 
 def signal_handler(signal, frame):
   global keylogger_process
-  print('You pressed Ctrl+C!')
   clear_logger()
   keylogger_process.kill()
   sys.exit(0)
+
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
-num_of_lines = get_logger_lines_count()
-while True:
-  current_lines = get_logger_lines_count()
-  if num_of_lines != current_lines:
-    process_key(get_logger_last_line().rstrip(), time.time())
-    num_of_lines = current_lines
-  time.sleep(0.1)
+
+for key in tail("-f", "keystroke.log", _iter=True):
+    process_key(key.rstrip(),time.time())
+
