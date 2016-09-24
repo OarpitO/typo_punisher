@@ -5,10 +5,6 @@ import time
 
 user_brightness_value = 0
 keylogger_process = 0
-last_key = ""
-last_key_timestamp = 0
-none_del_counter = 0
-
 
 def start_keylogger():
   args = ("./lib/keylogger")
@@ -39,16 +35,26 @@ def get_logger_last_line():
   popen.wait()
   return popen.stdout.read()
 
+last_key = ""
+last_key_timestamp = 0
+none_del_counter = 0
+brightness_step_size = 0.05
+
 def process_key(key, timestamp):
   print key
-  global last_key, last_key_timestamp, none_del_counter
+  global last_key, last_key_timestamp, none_del_counter, brightness_step_size, user_brightness_value
   time_diff = timestamp - last_key_timestamp
-  if key == "[del]\n" and time_diff < 3 and last_key != "[del]\n":
-    current_brightness = get_current_brightness()
-    set_brightness(current_brightness*0.80)
+  current_brightness = get_current_brightness()
+
+  if key == "[del]" and time_diff < 1 and last_key != "[del]":
+    set_brightness(max((current_brightness - brightness_step_size),0.0))
     none_del_counter = 0
-  elif key != "[del]\n":
+  elif key != "[del]":
     none_del_counter += 1
+
+  if none_del_counter !=0 and none_del_counter%10 == 0:
+      set_brightness(min((current_brightness + brightness_step_size),user_brightness_value))
+
   last_key, last_key_timestamp = key, timestamp
 
 user_brightness_value = get_current_brightness()
@@ -60,6 +66,6 @@ num_of_lines = get_logger_lines_count()
 while True:
   current_lines = get_logger_lines_count()
   if num_of_lines != current_lines:
-    process_key(get_logger_last_line(), time.time())
+    process_key(get_logger_last_line().rstrip(), time.time())
     num_of_lines = current_lines
   time.sleep(0.1)
