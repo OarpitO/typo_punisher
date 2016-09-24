@@ -2,6 +2,10 @@ import subprocess
 import os
 import sys
 import time
+import signal
+
+
+
 
 user_brightness_value = 0
 keylogger_process = 0
@@ -61,6 +65,15 @@ user_brightness_value = get_current_brightness()
 clear_logger()
 keylogger_process = start_keylogger()
 time.sleep(2)
+
+def signal_handler(signal, frame):
+  global keylogger_process
+  print('You pressed Ctrl+C!')
+  clear_logger()
+  keylogger_process.kill()
+  sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 num_of_lines = get_logger_lines_count()
 while True:
