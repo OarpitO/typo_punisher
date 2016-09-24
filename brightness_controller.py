@@ -49,7 +49,7 @@ def process_key(key, timestamp):
   if key == "[del]" and time_diff < 1 and last_key != "[del]":
     set_brightness(max((current_brightness - brightness_step_size),0.0))
     none_del_counter = 0
-  elif key != "[del]":
+  elif key != "[del]" and key != last_key:
     none_del_counter += 1
 
   if none_del_counter !=0 and none_del_counter%10 == 0:
