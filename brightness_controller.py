@@ -6,7 +6,8 @@ import signal
 from sh import tail
 user_brightness_value = 0
 keylogger_process = 0
-
+print "Start the process in the background !!"
+print "Accepts an integer as a parameter to set the difficulty if this is too easy for you"
 def start_keylogger():
   args = ("./lib/keylogger")
   return subprocess.Popen(args, stdout=subprocess.PIPE)
@@ -29,8 +30,6 @@ last_key_timestamp = 0
 none_del_counter = 0
 brightness_step_size = 0.05 if len(sys.argv) <= 1 else (float(sys.argv[1])*5)/100
 
-print "step " + str(brightness_step_size)
-
 def process_key(key, timestamp):
   # print key
   global last_key, last_key_timestamp, none_del_counter, brightness_step_size, user_brightness_value
@@ -49,7 +48,7 @@ def process_key(key, timestamp):
   last_key, last_key_timestamp = key, timestamp
 
 user_brightness_value = get_current_brightness()
-clear_logger()
+# clear_logger()
 keylogger_process = start_keylogger()
 time.sleep(2)
 
