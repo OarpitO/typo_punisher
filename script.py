@@ -53,7 +53,7 @@ def process_key(key, timestamp):
     none_del_counter += 1
 
   if none_del_counter !=0 and none_del_counter%10 == 0:
-      set_brightness(min((current_brightness + brightness_step_size),user_brightness_value))
+      set_brightness(min((current_brightness + 0.05),user_brightness_value))
 
   last_key, last_key_timestamp = key, timestamp
 
