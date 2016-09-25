@@ -12,8 +12,8 @@ brightness_bin = "./lib/brightness/bin/brightness"
 
 log_file = "/tmp/keystroke.log" # recompile keylogger binary if you change this.
 
-print "Start the process in the background !!"
 print "Accepts an integer as a parameter to set the difficulty if this is too easy for you"
+
 def start_keylogger():
   global keylogger_bin
   args = (keylogger_bin)
@@ -60,6 +60,8 @@ def process_key(key, timestamp):
 user_brightness_value = get_current_brightness()
 keylogger_process = start_keylogger()
 time.sleep(2)
+print "typo_punisher started ! , you can proceed to do your work.\n(CTRl + C to exit gracefully)"
+
 def signal_handler(signal, frame):
   global keylogger_process
   clear_logger()
