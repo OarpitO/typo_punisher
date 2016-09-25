@@ -1,3 +1,6 @@
 [submodule "lib/keylogger"]
 	path = lib/keylogger
 	url = https://github.com/pulkitsharma07/keylogger
+[submodule "lib/brightness"]
+	path = lib/brightness
+	url = https://github.com/pulkitsharma07/brightness
