@@ -4,25 +4,35 @@ import sys
 import time
 import signal
 from sh import tail
+
 user_brightness_value = 0
 keylogger_process = 0
+keylogger_bin = "./lib/keylogger/bin/keylogger"
+brightness_bin = "./lib/brightness/bin/brightness"
+
+log_file = "/tmp/keystroke.log" # recompile keylogger binary if you change this.
+
 print "Start the process in the background !!"
 print "Accepts an integer as a parameter to set the difficulty if this is too easy for you"
 def start_keylogger():
-  args = ("./lib/keylogger")
+  global keylogger_bin
+  args = (keylogger_bin)
   return subprocess.Popen(args, stdout=subprocess.PIPE)
 
 def clear_logger():
-  os.system('rm keystroke.log')
+  global log_file
+  os.system('rm ' + log_file)
 
 def get_current_brightness():
-  args = ("./lib/brightness", "-l")
+  global brightness_bin
+  args = (brightness_bin, "-l")
   popen = subprocess.Popen(args, stdout=subprocess.PIPE)
   popen.wait()
   return float(popen.stdout.read().rsplit(None, 1)[-1])
 
 def set_brightness( brightness_value ):
-  cmd = './lib/brightness -m ' + str(brightness_value)
+  global brightness_bin
+  cmd = brightness_bin + ' -m ' + str(brightness_value)
   os.system(cmd)
 
 last_key = ""
@@ -48,10 +58,8 @@ def process_key(key, timestamp):
   last_key, last_key_timestamp = key, timestamp
 
 user_brightness_value = get_current_brightness()
-# clear_logger()
 keylogger_process = start_keylogger()
 time.sleep(2)
-
 def signal_handler(signal, frame):
   global keylogger_process
   clear_logger()
@@ -62,6 +70,6 @@ signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
 
-for key in tail("-f", "keystroke.log", _iter=True):
+for key in tail("-f", log_file, _iter=True):
     process_key(key.rstrip(),time.time())
 
