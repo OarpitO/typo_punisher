@@ -1,6 +1,8 @@
 # typo_punisher
 	Improve your typing accuracy by using typo_punisher.
-# Using
+# Cloning
+Clone the repo using `git clone --recursive`
+# Using it
   `cd` into the repo. Then:
 ```bash
 $ make
